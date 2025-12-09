@@ -49,9 +49,7 @@ const Login = ({ onLogin }) => {
                   onChange={(e) => setUsername(e.target.value)}
                   className="form-control-lg"
                 />
-                <Form.Text className="text-muted d-block mt-2">
-                  👤 Demo: <strong>netsol</strong>
-                </Form.Text>
+               
               </Form.Group>
 
               <Form.Group className="mb-4">
@@ -63,9 +61,7 @@ const Login = ({ onLogin }) => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="form-control-lg"
                 />
-                <Form.Text className="text-muted d-block mt-2">
-                  🔐 Demo: <strong>net@123</strong>
-                </Form.Text>
+                
               </Form.Group>
 
               <Button
