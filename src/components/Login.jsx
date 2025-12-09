@@ -7,7 +7,7 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const correctUsername = 'netsujal';
+  const correctUsername = 'sujal';
   const correctPassword = 'net@123';
 
   const handleLogin = (e) => {
