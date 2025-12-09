@@ -12,6 +12,7 @@ import {
   Alert,
 } from 'react-bootstrap';
 import '../styles/TaskManager.css';
+import AllTasksPage from './AllTasksPage';
 
 const TaskManager = ({ currentUser, onLogout }) => {
   const [tasks, setTasks] = useState([]);
@@ -21,9 +22,11 @@ const TaskManager = ({ currentUser, onLogout }) => {
   const [taskDescription, setTaskDescription] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDate, setFilterDate] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all'); // all, today, upcoming
   const [editingId, setEditingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showAllTasksPage, setShowAllTasksPage] = useState(false);
 
   // Load tasks from localStorage on mount
   useEffect(() => {
@@ -114,12 +117,22 @@ const TaskManager = ({ currentUser, onLogout }) => {
 
   // Filter and search tasks
   const filteredTasks = tasks.filter((task) => {
+    const today = new Date().toISOString().split('T')[0];
     const matchesDate = !filterDate || task.date === filterDate;
     const matchesSearch =
       !searchTerm ||
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesDate && matchesSearch;
+    
+    // Status filter logic
+    let matchesStatus = true;
+    if (filterStatus === 'today') {
+      matchesStatus = task.date === today;
+    } else if (filterStatus === 'upcoming') {
+      matchesStatus = task.date > today;
+    }
+    
+    return matchesDate && matchesSearch && matchesStatus;
   });
 
   // Sort tasks by date and time
@@ -130,6 +143,11 @@ const TaskManager = ({ currentUser, onLogout }) => {
   });
 
   const todayTasks = sortedTasks.filter((task) => task.date === new Date().toISOString().split('T')[0]);
+
+  // If AllTasksPage is shown, render it instead
+  if (showAllTasksPage) {
+    return <AllTasksPage onBack={() => setShowAllTasksPage(false)} />;
+  }
 
   return (
     <Container fluid className="task-manager-container py-4">
@@ -200,11 +218,46 @@ const TaskManager = ({ currentUser, onLogout }) => {
         </Col>
       </Row>
 
-      {/* Filter by Date */}
+      {/* Filter Section */}
+      <Row className="mb-4 g-2">
+        <Col xs={12}>
+          <div className="filter-section">
+            <h6 className="mb-3 fw-bold">Filter Tasks:</h6>
+            <div className="filter-buttons mb-3">
+              <Button
+                variant={filterStatus === 'all' ? 'primary' : 'outline-primary'}
+                size="sm"
+                onClick={() => setShowAllTasksPage(true)}
+                className="me-2 mb-2"
+              >
+                📋 All Tasks
+              </Button>
+              <Button
+                variant={filterStatus === 'today' ? 'primary' : 'outline-primary'}
+                size="sm"
+                onClick={() => setFilterStatus('today')}
+                className="me-2 mb-2"
+              >
+                📅 Today
+              </Button>
+              <Button
+                variant={filterStatus === 'upcoming' ? 'primary' : 'outline-primary'}
+                size="sm"
+                onClick={() => setFilterStatus('upcoming')}
+                className="mb-2"
+              >
+                🚀 Upcoming
+              </Button>
+            </div>
+          </div>
+        </Col>
+      </Row>
+
+      {/* Filter by Specific Date */}
       <Row className="mb-4">
         <Col xs={12}>
           <Form.Group>
-            <Form.Label className="fw-bold">Filter by Date:</Form.Label>
+            <Form.Label className="fw-bold">Filter by Specific Date:</Form.Label>
             <Form.Control
               type="date"
               value={filterDate}
@@ -217,7 +270,7 @@ const TaskManager = ({ currentUser, onLogout }) => {
                 onClick={() => setFilterDate('')}
                 className="mt-2"
               >
-                Clear Filter
+                Clear Date Filter
               </Button>
             )}
           </Form.Group>
@@ -228,7 +281,11 @@ const TaskManager = ({ currentUser, onLogout }) => {
       <Row>
         <Col xs={12}>
           <h3 className="mb-3">
-            Tasks {filterDate && `- ${new Date(filterDate).toLocaleDateString()}`}
+            {filterStatus === 'all' && '📋 All Tasks'}
+            {filterStatus === 'today' && '📅 Today\'s Tasks'}
+            {filterStatus === 'upcoming' && '🚀 Upcoming Tasks'}
+            {filterDate && ` - ${new Date(filterDate).toLocaleDateString()}`}
+            <span className="text-muted ms-2 h6">({filteredTasks.length} tasks)</span>
           </h3>
           {sortedTasks.length === 0 ? (
             <Alert variant="info" className="text-center">
