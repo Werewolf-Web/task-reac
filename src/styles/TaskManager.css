@@ -1,0 +1,678 @@
+/* Task Manager Component Styles */
+.task-manager-container {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  padding: 20px 10px !important;
+  position: relative;
+}
+
+.task-manager-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.header-section {
+  padding: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  backdrop-filter: blur(10px);
+  animation: fadeInDown 0.6s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+.header-section h1 {
+  background: linear-gradient(135deg, #00d4ff 0%, #0099ff 50%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  margin-bottom: 12px;
+  font-size: 2rem;
+  letter-spacing: -1px;
+}
+
+.header-section p {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* Stat Cards */
+.stat-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out;
+  z-index: 1;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  animation: pulse 8s ease-in-out infinite;
+}
+
+.stat-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card .card-body {
+  padding: 20px !important;
+}
+
+.stat-card h5 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.9;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-card h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+  letter-spacing: -1px;
+}
+
+.stat-card.bg-primary {
+  background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+  color: white;
+}
+
+.stat-card.bg-success {
+  background: linear-gradient(135deg, #00d084 0%, #00a85d 100%);
+  color: white;
+}
+
+.stat-card.bg-info {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white;
+}
+
+/* Add Task Button & Search Section */
+.btn-add-task {
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 12px 18px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background: linear-gradient(135deg, #00d084 0%, #00a85d 100%);
+  border: none;
+  box-shadow: 0 8px 25px rgba(0, 208, 132, 0.3);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  letter-spacing: 0.5px;
+  width: 100%;
+}
+
+.btn-add-task::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: left 0.5s ease;
+}
+
+.btn-add-task:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 208, 132, 0.5);
+}
+
+.btn-add-task:hover::before {
+  left: 100%;
+}
+
+/* Search and Filter */
+.form-control {
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  transition: all 0.4s ease;
+  background: white;
+  position: relative;
+  z-index: 1;
+}
+
+.form-control:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 0.3rem rgba(0, 212, 255, 0.15);
+  transform: translateY(-2px);
+  background: white;
+}
+
+.form-control-lg {
+  height: auto;
+  padding: 10px 14px;
+}
+
+.form-label {
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+/* Tasks List */
+.tasks-list {
+  border: none;
+  background: none;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.task-item {
+  background: white;
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-left: 5px solid transparent;
+  padding: 16px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.task-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  border-left-color: #00d4ff;
+}
+
+.task-item h5 {
+  color: #1a1a2e;
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+  letter-spacing: -0.5px;
+  word-break: break-word;
+}
+
+.task-item p {
+  color: #666;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.task-description {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.task-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.badge {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  animation: fadeIn 0.4s ease-out;
+  white-space: nowrap;
+}
+
+.badge.bg-info {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+
+.badge.bg-warning {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+}
+
+.badge.bg-success {
+  background: linear-gradient(135deg, #00d084 0%, #00a85d 100%);
+}
+
+/* Task Actions */
+.task-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+/* Modal Styles */
+.modal-content {
+  border: none;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #00d4ff 0%, #0099ff 50%, #6366f1 100%);
+  color: white;
+  border: none;
+  border-radius: 18px 18px 0 0;
+  border-bottom: none;
+  padding: 18px;
+}
+
+.modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+.modal-title {
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: -0.5px;
+}
+
+.modal-footer {
+  border-top: 1px solid #e0e0e0;
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+  padding: 16px;
+}
+
+/* Buttons in Task Items */
+.task-item .btn {
+  border-radius: 8px;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.task-item .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: left 0.5s ease;
+}
+
+.task-item .btn:hover {
+  transform: translateY(-2px);
+}
+
+.task-item .btn:hover::before {
+  left: 100%;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.btn-warning:hover {
+  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.5);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.btn-danger:hover {
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.5);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #00d4ff 0%, #0099ff 50%, #6366f1 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 8px 20px rgba(0, 212, 255, 0.5);
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background: #d0d0d0;
+}
+
+.btn-lg {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+}
+
+/* Alert Styles */
+.alert {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-left: 4px solid;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 20px;
+  padding: 14px;
+  font-size: 0.95rem;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  color: #065f46;
+  border-left-color: #10b981;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #0c2d48;
+  border-left-color: #0ea5e9;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  color: #7f1d1d;
+  border-left-color: #ef4444;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* ===== MOBILE RESPONSIVE (xs - Extra Small: < 576px) ===== */
+@media (max-width: 575.98px) {
+  .task-manager-container {
+    padding: 12px 8px !important;
+  }
+
+  .header-section {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .header-section h1 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .header-section p {
+    font-size: 0.85rem;
+  }
+
+  .stat-card .card-body {
+    padding: 14px !important;
+  }
+
+  .stat-card h5 {
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+  }
+
+  .stat-card h2 {
+    font-size: 1.8rem;
+  }
+
+  .form-control {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+
+  .btn-add-task {
+    font-size: 0.9rem;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+  }
+
+  .btn-lg {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .task-item {
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+  }
+
+  .task-item h5 {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  .task-item p {
+    font-size: 0.85rem;
+  }
+
+  .task-meta {
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .badge {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .task-actions {
+    gap: 6px;
+  }
+
+  .task-item .btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    margin-bottom: 6px;
+  }
+
+  .modal-header {
+    padding: 14px;
+  }
+
+  .modal-title {
+    font-size: 1rem;
+  }
+
+  .modal-body {
+    padding: 12px !important;
+  }
+
+  .modal-footer {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .modal-footer .btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    flex: 1;
+  }
+
+  .alert {
+    padding: 12px;
+    font-size: 0.85rem;
+  }
+
+  h3 {
+    font-size: 1.3rem !important;
+  }
+}
+
+/* ===== SMALL DEVICES (sm - Small: 576px - 767.98px) ===== */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .task-manager-container {
+    padding: 16px 10px !important;
+  }
+
+  .header-section {
+    padding: 18px;
+  }
+
+  .header-section h1 {
+    font-size: 1.7rem;
+  }
+
+  .header-section p {
+    font-size: 0.9rem;
+  }
+
+  .stat-card h2 {
+    font-size: 2rem;
+  }
+
+  .task-item {
+    padding: 14px;
+  }
+
+  .task-item h5 {
+    font-size: 1rem;
+  }
+
+  .btn-add-task {
+    font-size: 0.95rem;
+  }
+}
+
+/* ===== MEDIUM DEVICES (md - Medium: 768px - 991.98px) ===== */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .task-manager-container {
+    padding: 25px 15px !important;
+  }
+
+  .header-section {
+    padding: 24px;
+  }
+
+  .header-section h1 {
+    font-size: 2.2rem;
+  }
+
+  .stat-card h2 {
+    font-size: 2.4rem;
+  }
+
+  .task-item {
+    padding: 18px;
+  }
+}
+
+/* ===== LARGE DEVICES (lg - Large: 992px and up) ===== */
+@media (min-width: 992px) {
+  .task-manager-container {
+    padding: 40px 20px !important;
+  }
+
+  .header-section {
+    padding: 30px;
+  }
+
+  .header-section h1 {
+    font-size: 2.8rem;
+  }
+
+  .stat-card h2 {
+    font-size: 3rem;
+  }
+
+  .task-item {
+    padding: 25px;
+  }
+
+  .task-item:hover {
+    transform: translateY(-8px) translateX(5px);
+  }
+}
+
+
