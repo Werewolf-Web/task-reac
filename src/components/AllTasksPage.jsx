@@ -8,17 +8,20 @@ import {
   Card,
   Badge,
   Alert,
+  Modal,
 } from 'react-bootstrap';
 import '../styles/AllTasksPage.css';
 import { TasksContext } from '../context/TasksContext';
 
-const AllTasksPage = ({ onBack }) => {
+const AllTasksPage = () => {
   const { tasks, removeTask } = useContext(TasksContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [filterStatus, setFilterStatus] = useState('all'); // all, today, upcoming
   const [sortBy, setSortBy] = useState('date-desc'); // date-desc, date-asc, title
   const [successMessage, setSuccessMessage] = useState('');
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const showSuccessMessage = (message) => {
     setSuccessMessage(message);
@@ -66,14 +69,14 @@ const AllTasksPage = ({ onBack }) => {
 
   const getTaskStatus = (taskDate) => {
     const today = new Date().toISOString().split('T')[0];
-    if (taskDate < today) return 'overdue';
+    if (taskDate < today) return 'over';
     if (taskDate === today) return 'today';
     return 'upcoming';
   };
 
   const getStatusBadgeColor = (status) => {
     switch (status) {
-      case 'overdue':
+      case 'over':
         return 'danger';
       case 'today':
         return 'warning';
@@ -86,34 +89,24 @@ const AllTasksPage = ({ onBack }) => {
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'overdue':
-        return '⚠️ Overdue';
+      case 'over':
+        return 'Over';
       case 'today':
-        return '📅 Today';
+        return 'Today';
       case 'upcoming':
-        return '🚀 Upcoming';
+        return 'Upcoming';
       default:
-        return 'Unknown';
+        return 'over';
     }
   };
 
   return (
     <Container fluid className="all-tasks-container py-4">
-      {/* Header with Back Button */}
+      {/* Header */}
       <Row className="mb-4 align-items-center g-3">
-        <Col xs={12} md={8}>
+        <Col xs={12}>
           <div className="header-section">
-            <div className="d-flex align-items-center gap-3">
-              <Button
-                variant="outline-primary"
-                size="sm"
-                onClick={onBack}
-                className="back-button"
-              >
-                ← Back to Dashboard
-              </Button>
-              <h1 className="mb-0">📋 All Tasks Overview</h1>
-            </div>
+            <h1 className="mb-0">All Tasks</h1>
             <p className="text-muted mt-2 mb-0">
               View and manage all your tasks in one place
             </p>
@@ -124,7 +117,7 @@ const AllTasksPage = ({ onBack }) => {
       {/* Success Message */}
       {successMessage && (
         <Alert variant="success" className="alert-dismissible fade show">
-          ✓ {successMessage}
+          {successMessage}
         </Alert>
       )}
 
@@ -255,20 +248,19 @@ const AllTasksPage = ({ onBack }) => {
                 const statusLabel = getStatusLabel(status);
 
                 return (
-                  <Card key={task.id} className="task-card">
+                  <Card
+                    key={task.id}
+                    className="task-card"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      setSelectedTask(task);
+                      setShowDetailModal(true);
+                    }}
+                  >
                     <Card.Body>
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <h5 className="card-title mb-0">{task.title}</h5>
-                        <Badge bg={statusColor}>{statusLabel}</Badge>
-                      </div>
-
-                      {task.description && (
-                        <p className="card-text text-muted mb-3">{task.description}</p>
-                      )}
-
-                      <div className="task-meta mb-3">
+                      <div className="task-meta mb-2">
                         <div className="meta-item">
-                          <span className="meta-label">📅 Date:</span>
+                          <span className="meta-label">Date:</span>
                           <span className="meta-value">
                             {new Date(task.date).toLocaleDateString('en-US', {
                               weekday: 'short',
@@ -279,18 +271,30 @@ const AllTasksPage = ({ onBack }) => {
                           </span>
                         </div>
                         <div className="meta-item">
-                          <span className="meta-label">🕒 Time:</span>
+                          <span className="meta-label">Time:</span>
                           <span className="meta-value">{task.time}</span>
                         </div>
                       </div>
 
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <h5 className="card-title mb-0">{task.title}</h5>
+                        <Badge bg={statusColor}>{statusLabel}</Badge>
+                      </div>
+
+                      {task.description && (
+                        <p className="card-text text-muted mb-3">{task.description}</p>
+                      )}
+
                       <Button
                         variant="danger"
                         size="sm"
-                        onClick={() => deleteTask(task.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteTask(task.id);
+                        }}
                         className="w-100"
                       >
-                        🗑️ Delete Task
+                        Delete Task
                       </Button>
                     </Card.Body>
                   </Card>
@@ -300,6 +304,66 @@ const AllTasksPage = ({ onBack }) => {
           )}
         </Col>
       </Row>
+
+      {/* Task Detail Modal */}
+      <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>
+        <Modal.Header closeButton>
+          <Modal.Title className="modal-title-responsive">Task Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedTask && (
+            <div>
+              <div className="mb-4">
+                <h4 className="task-modal-title">{selectedTask.title}</h4>
+                {selectedTask.description && (
+                  <p className="text-muted task-modal-description">{selectedTask.description}</p>
+                )}
+              </div>
+
+              <div className="detail-row mb-3">
+                <strong>Date:</strong>
+                <span>
+                  {new Date(selectedTask.date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
+              </div>
+
+              <div className="detail-row mb-3">
+                <strong>Time:</strong>
+                <span>{selectedTask.time}</span>
+              </div>
+
+              <div className="detail-row mb-3">
+                <strong>Status:</strong>
+                <Badge bg={getStatusBadgeColor(getTaskStatus(selectedTask.date))}>
+                  {getStatusLabel(getTaskStatus(selectedTask.date))}
+                </Badge>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="modal-footer-responsive">
+          <Button
+            variant="danger"
+            onClick={() => {
+              if (selectedTask) {
+                deleteTask(selectedTask.id);
+                setShowDetailModal(false);
+              }
+            }}
+            className="w-100 w-lg-auto"
+          >
+            Delete Task
+          </Button>
+          <Button variant="secondary" onClick={() => setShowDetailModal(false)} className="w-100 w-lg-auto">
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
