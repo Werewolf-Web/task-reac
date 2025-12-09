@@ -150,7 +150,7 @@ const AllTasksPage = ({ onBack }) => {
 
       {/* Search and Filter Section */}
       <Row className="mb-4 g-2">
-        <Col xs={12} md={6}>
+        <Col xs={12} lg={6}>
           <Form.Control
             type="text"
             placeholder="🔍 Search tasks by title or description..."
@@ -159,7 +159,7 @@ const AllTasksPage = ({ onBack }) => {
             className="form-control-lg"
           />
         </Col>
-        <Col xs={12} md={3}>
+        <Col xs={12} sm={6} lg={3}>
           <Form.Control
             type="date"
             value={filterDate}
@@ -167,7 +167,7 @@ const AllTasksPage = ({ onBack }) => {
             className="form-control-lg"
           />
         </Col>
-        <Col xs={12} md={3}>
+        <Col xs={12} sm={6} lg={3}>
           <Form.Select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
