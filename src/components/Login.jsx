@@ -7,7 +7,7 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const correctUsername = 'netsol';
+  const correctUsername = 'netsujal';
   const correctPassword = 'net@123';
 
   const handleLogin = (e) => {
@@ -69,7 +69,7 @@ const Login = ({ onLogin }) => {
                 type="submit"
                 className="w-100 btn-lg fw-bold login-btn"
               >
-                🚀 Login to Dashboard
+                 Login to Dashboard
               </Button>
             </Form>
           </Card.Body>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Login from './components/Login';
 import TaskManager from './components/TaskManager';
+import AppNavbar from './components/AppNavbar';
 import './App.css';
 
 function App() {
@@ -31,7 +32,10 @@ function App() {
   return (
     <div className="app-container">
       {isLoggedIn ? (
-        <TaskManager currentUser={currentUser} onLogout={handleLogout} />
+        <>
+          <AppNavbar onLogout={handleLogout} />
+          <TaskManager currentUser={currentUser} onLogout={handleLogout} />
+        </>
       ) : (
         <Login onLogin={handleLogin} />
       )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Container,
   Row,
@@ -10,21 +10,15 @@ import {
   Alert,
 } from 'react-bootstrap';
 import '../styles/AllTasksPage.css';
+import { TasksContext } from '../context/TasksContext';
 
 const AllTasksPage = ({ onBack }) => {
-  const [tasks, setTasks] = useState([]);
+  const { tasks, removeTask } = useContext(TasksContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDate, setFilterDate] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all'); // all, today, upcoming
   const [sortBy, setSortBy] = useState('date-desc'); // date-desc, date-asc, title
   const [successMessage, setSuccessMessage] = useState('');
-
-  // Load tasks from localStorage on mount
-  useEffect(() => {
-    const storedTasks = localStorage.getItem('dailyTasks');
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
-    }
-  }, []);
 
   const showSuccessMessage = (message) => {
     setSuccessMessage(message);
@@ -32,20 +26,28 @@ const AllTasksPage = ({ onBack }) => {
   };
 
   const deleteTask = (id) => {
-    const updatedTasks = tasks.filter((task) => task.id !== id);
-    setTasks(updatedTasks);
-    localStorage.setItem('dailyTasks', JSON.stringify(updatedTasks));
+    removeTask(id);
     showSuccessMessage('Task deleted successfully!');
   };
 
   // Filter and search tasks
   const filteredTasks = tasks.filter((task) => {
+    const today = new Date().toISOString().split('T')[0];
     const matchesDate = !filterDate || task.date === filterDate;
     const matchesSearch =
       !searchTerm ||
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesDate && matchesSearch;
+    
+    // Status filter logic
+    let matchesStatus = true;
+    if (filterStatus === 'today') {
+      matchesStatus = task.date === today;
+    } else if (filterStatus === 'upcoming') {
+      matchesStatus = task.date > today;
+    }
+    
+    return matchesDate && matchesSearch && matchesStatus;
   });
 
   // Sort tasks
@@ -148,12 +150,44 @@ const AllTasksPage = ({ onBack }) => {
         </Col>
       </Row>
 
+      {/* Status Filter Buttons */}
+      <Row className="mb-4 g-2">
+        <Col xs={12}>
+          <div className="filter-buttons mb-3">
+            <Button
+              variant={filterStatus === 'all' ? 'primary' : 'outline-primary'}
+              size="sm"
+              onClick={() => setFilterStatus('all')}
+              className="me-2 mb-2"
+            >
+              All Tasks
+            </Button>
+            <Button
+              variant={filterStatus === 'today' ? 'primary' : 'outline-primary'}
+              size="sm"
+              onClick={() => setFilterStatus('today')}
+              className="me-2 mb-2"
+            >
+              Today
+            </Button>
+            <Button
+              variant={filterStatus === 'upcoming' ? 'primary' : 'outline-primary'}
+              size="sm"
+              onClick={() => setFilterStatus('upcoming')}
+              className="mb-2"
+            >
+              Upcoming
+            </Button>
+          </div>
+        </Col>
+      </Row>
+
       {/* Search and Filter Section */}
       <Row className="mb-4 g-2">
         <Col xs={12} lg={6}>
           <Form.Control
             type="text"
-            placeholder="🔍 Search tasks by title or description..."
+            placeholder="Search tasks by title or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="form-control-lg"
@@ -173,9 +207,9 @@ const AllTasksPage = ({ onBack }) => {
             onChange={(e) => setSortBy(e.target.value)}
             className="form-control-lg"
           >
-            <option value="date-desc">📅 Newest First</option>
-            <option value="date-asc">📅 Oldest First</option>
-            <option value="title">🔤 Sort by Title</option>
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="title">Sort by Title</option>
           </Form.Select>
         </Col>
       </Row>

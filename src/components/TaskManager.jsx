@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Container,
   Row,
@@ -13,72 +13,73 @@ import {
 } from 'react-bootstrap';
 import '../styles/TaskManager.css';
 import AllTasksPage from './AllTasksPage';
+import { TasksContext } from '../context/TasksContext';
 
 const TaskManager = ({ currentUser, onLogout }) => {
-  const [tasks, setTasks] = useState([]);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [time, setTime] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterDate, setFilterDate] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // all, today, upcoming
   const [editingId, setEditingId] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [showAllTasksPage, setShowAllTasksPage] = useState(false);
 
-  // Load tasks from localStorage on mount
+  const {
+    tasks,
+    addTask,
+    updateTask,
+    removeTask,
+    showModal,
+    setShowModal,
+    editingTask,
+    openAddModal,
+    openEditModal,
+    showAllTasksPage,
+    openAllTasksPage,
+    closeAllTasksPage,
+    searchTerm,
+    setSearchTerm,
+    filterDate,
+    setFilterDate,
+    filterStatus,
+    setFilterStatus,
+  } = useContext(TasksContext);
+
+
+  // Sync local form with editingTask from context
   useEffect(() => {
-    const storedTasks = localStorage.getItem('dailyTasks');
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
+    if (editingTask) {
+      setEditingId(editingTask.id);
+      setDate(editingTask.date || new Date().toISOString().split('T')[0]);
+      setTime(editingTask.time || '');
+      setTaskTitle(editingTask.title || '');
+      setTaskDescription(editingTask.description || '');
+    } else {
+      setEditingId(null);
     }
-  }, []);
-
-  // Save tasks to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('dailyTasks', JSON.stringify(tasks));
-  }, [tasks]);
+  }, [editingTask]);
 
   const showSuccessMessage = (message) => {
     setSuccessMessage(message);
     setTimeout(() => setSuccessMessage(''), 2000);
   };
 
-  const addTask = () => {
+  const saveTask = () => {
     if (!date || !time || !taskTitle.trim()) {
       alert('Please fill in all fields');
       return;
     }
 
     if (editingId) {
-      // Edit existing task
-      setTasks(
-        tasks.map((task) =>
-          task.id === editingId
-            ? {
-                ...task,
-                date,
-                time,
-                title: taskTitle,
-                description: taskDescription,
-              }
-            : task
-        )
-      );
-      showSuccessMessage('Task updated successfully!');
-      setEditingId(null);
-    } else {
-      // Add new task
-      const newTask = {
-        id: Date.now(),
+      updateTask(editingId, {
         date,
         time,
         title: taskTitle,
         description: taskDescription,
-      };
-      setTasks([...tasks, newTask]);
+      });
+      showSuccessMessage('Task updated successfully!');
+      setEditingId(null);
+    } else {
+      addTask({ date, time, title: taskTitle, description: taskDescription });
       showSuccessMessage('Task added successfully!');
     }
 
@@ -87,21 +88,15 @@ const TaskManager = ({ currentUser, onLogout }) => {
     setTime('');
     setTaskTitle('');
     setTaskDescription('');
-    setShowModal(false);
   };
 
   const deleteTask = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+    removeTask(id);
     showSuccessMessage('Task deleted successfully!');
   };
 
   const editTask = (task) => {
-    setEditingId(task.id);
-    setDate(task.date);
-    setTime(task.time);
-    setTaskTitle(task.title);
-    setTaskDescription(task.description);
-    setShowModal(true);
+    openEditModal(task);
   };
 
 
@@ -146,7 +141,7 @@ const TaskManager = ({ currentUser, onLogout }) => {
 
   // If AllTasksPage is shown, render it instead
   if (showAllTasksPage) {
-    return <AllTasksPage onBack={() => setShowAllTasksPage(false)} />;
+    return <AllTasksPage onBack={() => closeAllTasksPage()} />;
   }
 
   return (
@@ -155,17 +150,13 @@ const TaskManager = ({ currentUser, onLogout }) => {
       <Row className="mb-4 align-items-center g-3">
         <Col xs={12} md={8}>
           <div className="header-section">
-            <h1 className="mb-2">📋 Daily Task Manager</h1>
+            <h1 className="mb-2">Daily Task Manager</h1>
             <p className="text-muted mb-0">
               Welcome, <strong>{currentUser}</strong>! Manage your tasks efficiently.
             </p>
           </div>
         </Col>
-        <Col xs={12} md={4} className="d-grid d-md-flex justify-content-md-end">
-          <Button variant="danger" onClick={onLogout} className="btn-lg">
-            Logout
-          </Button>
-        </Col>
+       
       </Row>
 
       {/* Success Message */}
@@ -201,16 +192,16 @@ const TaskManager = ({ currentUser, onLogout }) => {
           <Button
             variant="success"
             size="lg"
-            onClick={() => setShowModal(true)}
+            onClick={() => openAddModal()}
             className="w-100 btn-add-task"
           >
-            ➕ Add New Task
+            Add New Task
           </Button>
         </Col>
         <Col xs={12} sm={6}>
           <Form.Control
             type="text"
-            placeholder="🔍 Search tasks..."
+            placeholder="Search tasks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="form-control-lg"
@@ -222,15 +213,15 @@ const TaskManager = ({ currentUser, onLogout }) => {
       <Row className="mb-4 g-2">
         <Col xs={12}>
           <div className="filter-section">
-            <h6 className="mb-3 fw-bold">Filter Tasks:</h6>
+              <h6 className="mb-3 fw-bold">Filter Tasks:</h6>
             <div className="filter-buttons mb-3">
               <Button
                 variant={filterStatus === 'all' ? 'primary' : 'outline-primary'}
                 size="sm"
-                onClick={() => setShowAllTasksPage(true)}
+                onClick={() => openAllTasksPage()}
                 className="me-2 mb-2"
               >
-                📋 All Tasks
+                All Tasks
               </Button>
               <Button
                 variant={filterStatus === 'today' ? 'primary' : 'outline-primary'}
@@ -238,7 +229,7 @@ const TaskManager = ({ currentUser, onLogout }) => {
                 onClick={() => setFilterStatus('today')}
                 className="me-2 mb-2"
               >
-                📅 Today
+                Today
               </Button>
               <Button
                 variant={filterStatus === 'upcoming' ? 'primary' : 'outline-primary'}
@@ -246,7 +237,7 @@ const TaskManager = ({ currentUser, onLogout }) => {
                 onClick={() => setFilterStatus('upcoming')}
                 className="mb-2"
               >
-                🚀 Upcoming
+                Upcoming
               </Button>
             </div>
           </div>
@@ -392,7 +383,7 @@ const TaskManager = ({ currentUser, onLogout }) => {
           <Button variant="secondary" onClick={closeModal}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={addTask}>
+          <Button variant="primary" onClick={saveTask}>
             {editingId ? 'Update Task' : 'Add Task'}
           </Button>
         </Modal.Footer>
