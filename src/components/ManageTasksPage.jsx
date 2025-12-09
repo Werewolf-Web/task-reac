@@ -3,9 +3,10 @@ import { Container, Row, Col, Form, Button, Card, ListGroup, Badge, Alert, Modal
 import { TasksContext } from '../context/TasksContext';
 import '../styles/ManageTasksPage.css';
 
-const ManageTasksPage = ({ currentUser }) => {
-  const { tasks, removeTask } = useContext(TasksContext);
+const ManageTasksPage = ({ currentUser, onNavigate }) => {
+  const { tasks, removeTask, openEditModal } = useContext(TasksContext);
   const [filterStatus, setFilterStatus] = useState('all'); // all, today, upcoming
+  const [filterDate, setFilterDate] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -20,9 +21,16 @@ const ManageTasksPage = ({ currentUser }) => {
     showSuccessMessage('Task deleted successfully!');
   };
 
-  // Filter tasks based on status
+  // Filter tasks based on status and date
   const filteredTasks = tasks.filter((task) => {
     const today = new Date().toISOString().split('T')[0];
+    
+    // Date filter
+    if (filterDate && task.date !== filterDate) {
+      return false;
+    }
+    
+    // Status filter
     if (filterStatus === 'today') {
       return task.date === today;
     } else if (filterStatus === 'upcoming') {
@@ -82,8 +90,8 @@ const ManageTasksPage = ({ currentUser }) => {
       </Row>
 
       {/* Filter Section */}
-      <Row className="mb-4">
-        <Col xs={12}>
+      <Row className="mb-4 g-2">
+        <Col xs={12} md={8}>
           <div className="filter-buttons">
             <Button
               variant={filterStatus === 'all' ? 'primary' : 'outline-primary'}
@@ -111,7 +119,30 @@ const ManageTasksPage = ({ currentUser }) => {
             </Button>
           </div>
         </Col>
+        <Col xs={12} md={4}>
+          <Form.Control
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            placeholder="Filter by date"
+            className="form-control-sm"
+          />
+        </Col>
       </Row>
+      
+      {filterDate && (
+        <Row className="mb-3">
+          <Col xs={12}>
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={() => setFilterDate('')}
+            >
+              Clear Date Filter
+            </Button>
+          </Col>
+        </Row>
+      )}
 
       {/* Tasks List */}
       <Row>
@@ -120,6 +151,7 @@ const ManageTasksPage = ({ currentUser }) => {
             {filterStatus === 'all' && 'All Tasks'}
             {filterStatus === 'today' && 'Today\'s Tasks'}
             {filterStatus === 'upcoming' && 'Upcoming Tasks'}
+            {filterDate && ` - ${new Date(filterDate).toLocaleDateString()}`}
             <span className="text-muted ms-2 h6">({sortedTasks.length})</span>
           </h3>
           {sortedTasks.length === 0 ? (
@@ -157,6 +189,18 @@ const ManageTasksPage = ({ currentUser }) => {
                       </div>
                     </Col>
                     <Col xs={12} lg={4} className="task-actions mt-3 mt-lg-0">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditModal(task);
+                          onNavigate('add');
+                        }}
+                        className="w-100 mb-2"
+                      >
+                        Edit
+                      </Button>
                       <Button
                         variant="danger"
                         size="sm"
@@ -212,6 +256,19 @@ const ManageTasksPage = ({ currentUser }) => {
           )}
         </Modal.Body>
         <Modal.Footer className="modal-footer-responsive">
+          <Button
+            variant="primary"
+            onClick={() => {
+              if (selectedTask) {
+                openEditModal(selectedTask);
+                setShowDetailModal(false);
+                onNavigate('add');
+              }
+            }}
+            className="w-100 w-lg-auto"
+          >
+            Edit Task
+          </Button>
           <Button
             variant="danger"
             onClick={() => {

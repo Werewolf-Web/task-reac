@@ -42,7 +42,7 @@ function App() {
         return <AllTasksPage />;
       case 'manage':
       default:
-        return <ManageTasksPage currentUser={currentUser} />;
+        return <ManageTasksPage currentUser={currentUser} onNavigate={setCurrentPage} />;
     }
   };
 
