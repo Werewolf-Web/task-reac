@@ -12,6 +12,7 @@ import {
 } from 'react-bootstrap';
 import '../styles/AllTasksPage.css';
 import { TasksContext } from '../context/TasksContext';
+import { formatDate } from '../utils/exportUtils';
 
 const AllTasksPage = () => {
   const { tasks, removeTask } = useContext(TasksContext);
@@ -262,12 +263,7 @@ const AllTasksPage = () => {
                         <div className="meta-item">
                           <span className="meta-label">Date:</span>
                           <span className="meta-value">
-                            {new Date(task.date).toLocaleDateString('en-US', {
-                              weekday: 'short',
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
+                            {formatDate(task.date)}
                           </span>
                         </div>
                         <div className="meta-item">
@@ -322,14 +318,7 @@ const AllTasksPage = () => {
 
               <div className="detail-row mb-3">
                 <strong>Date:</strong>
-                <span>
-                  {new Date(selectedTask.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </span>
+                <span>{formatDate(selectedTask.date)}</span>
               </div>
 
               <div className="detail-row mb-3">

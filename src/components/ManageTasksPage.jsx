@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { Container, Row, Col, Form, Button, Card, ListGroup, Badge, Alert, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Card, ListGroup, Badge, Alert, Modal, ButtonGroup } from 'react-bootstrap';
 import { TasksContext } from '../context/TasksContext';
+import { exportTasksToExcel, exportTasksToPDF, formatDate } from '../utils/exportUtils';
 import '../styles/ManageTasksPage.css';
 
 const ManageTasksPage = ({ currentUser, onNavigate }) => {
@@ -59,6 +60,28 @@ const ManageTasksPage = ({ currentUser, onNavigate }) => {
               Welcome, <strong>{currentUser}</strong>!
             </p>
           </div>
+        </Col>
+        <Col xs={12} md={4} className="text-md-end">
+          <ButtonGroup className="w-100 w-md-auto gap-2" vertical={true} style={{ gap: '0.5rem !important' }}>
+            <Button
+              variant="success"
+              size="sm"
+              onClick={() => exportTasksToExcel(tasks)}
+              disabled={tasks.length === 0}
+              className="d-flex align-items-center justify-content-center gap-2"
+            >
+              📊 Export Excel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => exportTasksToPDF(tasks)}
+              disabled={tasks.length === 0}
+              className="d-flex align-items-center justify-content-center gap-2"
+            >
+              📄 Export PDF
+            </Button>
+          </ButtonGroup>
         </Col>
       </Row>
 
@@ -151,7 +174,7 @@ const ManageTasksPage = ({ currentUser, onNavigate }) => {
             {filterStatus === 'all' && 'All Tasks'}
             {filterStatus === 'today' && 'Today\'s Tasks'}
             {filterStatus === 'upcoming' && 'Upcoming Tasks'}
-            {filterDate && ` - ${new Date(filterDate).toLocaleDateString()}`}
+            {filterDate && ` - ${formatDate(filterDate)}`}
             <span className="text-muted ms-2 h6">({sortedTasks.length})</span>
           </h3>
           {sortedTasks.length === 0 ? (
@@ -180,7 +203,7 @@ const ManageTasksPage = ({ currentUser, onNavigate }) => {
                         )}
                         <div className="task-meta">
                           <Badge bg="info" className="me-2">
-                            {new Date(task.date).toLocaleDateString()}
+                            {formatDate(task.date)}
                           </Badge>
                           <Badge bg="warning" text="dark">
                             {task.time}
@@ -238,14 +261,7 @@ const ManageTasksPage = ({ currentUser, onNavigate }) => {
 
               <div className="detail-row mb-3">
                 <strong>Date:</strong>
-                <span>
-                  {new Date(selectedTask.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </span>
+                <span>{formatDate(selectedTask.date)}</span>
               </div>
 
               <div className="detail-row mb-3">

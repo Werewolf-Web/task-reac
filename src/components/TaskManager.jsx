@@ -14,6 +14,7 @@ import {
 import '../styles/TaskManager.css';
 import AllTasksPage from './AllTasksPage';
 import { TasksContext } from '../context/TasksContext';
+import { formatDate } from '../utils/exportUtils';
 
 const TaskManager = ({ currentUser, onLogout }) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -275,7 +276,7 @@ const TaskManager = ({ currentUser, onLogout }) => {
             {filterStatus === 'all' && '📋 All Tasks'}
             {filterStatus === 'today' && '📅 Today\'s Tasks'}
             {filterStatus === 'upcoming' && '🚀 Upcoming Tasks'}
-            {filterDate && ` - ${new Date(filterDate).toLocaleDateString()}`}
+            {filterDate && ` - ${formatDate(filterDate)}`}
             <span className="text-muted ms-2 h6">({filteredTasks.length} tasks)</span>
           </h3>
           {sortedTasks.length === 0 ? (
@@ -296,7 +297,7 @@ const TaskManager = ({ currentUser, onLogout }) => {
                         )}
                         <div className="task-meta">
                           <Badge bg="info" className="me-2">
-                            📅 {new Date(task.date).toLocaleDateString()}
+                            📅 {formatDate(task.date)}
                           </Badge>
                           <Badge bg="warning" text="dark">
                             🕒 {task.time}
