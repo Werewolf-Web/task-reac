@@ -15,24 +15,13 @@ import { TasksContext } from '../context/TasksContext';
 import { formatDate } from '../utils/exportUtils';
 
 const AllTasksPage = () => {
-  const { tasks, removeTask } = useContext(TasksContext);
+  const { tasks } = useContext(TasksContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [filterStatus, setFilterStatus] = useState('all'); // all, today, upcoming
   const [sortBy, setSortBy] = useState('date-desc'); // date-desc, date-asc, title
-  const [successMessage, setSuccessMessage] = useState('');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
-
-  const showSuccessMessage = (message) => {
-    setSuccessMessage(message);
-    setTimeout(() => setSuccessMessage(''), 2000);
-  };
-
-  const deleteTask = (id) => {
-    removeTask(id);
-    showSuccessMessage('Task deleted successfully!');
-  };
 
   // Filter and search tasks
   const filteredTasks = tasks.filter((task) => {
@@ -117,13 +106,6 @@ const AllTasksPage = () => {
           </div>
         </Col>
       </Row>
-
-      {/* Success Message */}
-      {successMessage && (
-        <Alert variant="success" className="alert-dismissible fade show">
-          {successMessage}
-        </Alert>
-      )}
 
       {/* Statistics */}
       <Row className="mb-4 g-2">
@@ -284,22 +266,10 @@ const AllTasksPage = () => {
                       </div>
 
                       {(task.taskDetail || task.description) && (
-                        <p className="card-text text-muted mb-3">
+                        <p className="card-text text-muted mb-0">
                           {task.taskDetail || task.description}
                         </p>
                       )}
-
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteTask(task.id);
-                        }}
-                        className="w-100"
-                      >
-                        Delete Task
-                      </Button>
                     </Card.Body>
                   </Card>
                 );
@@ -353,19 +323,7 @@ const AllTasksPage = () => {
           )}
         </Modal.Body>
         <Modal.Footer className="modal-footer-responsive">
-          <Button
-            variant="danger"
-            onClick={() => {
-              if (selectedTask) {
-                deleteTask(selectedTask.id);
-                setShowDetailModal(false);
-              }
-            }}
-            className="w-100 w-lg-auto"
-          >
-            Delete Task
-          </Button>
-          <Button variant="secondary" onClick={() => setShowDetailModal(false)} className="w-100 w-lg-auto">
+          <Button variant="secondary" onClick={() => setShowDetailModal(false)} className="w-100">
             Close
           </Button>
         </Modal.Footer>

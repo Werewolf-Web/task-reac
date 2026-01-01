@@ -14,7 +14,17 @@ body {
   width: 100%;
   min-height: 100vh;
   position: relative;
+  animation: pageEnter 0.4s ease-out;
+  padding-top: 70px; /* Space for the top fixed navbar on desktop */
 }
+
+@media (max-width: 767px) {
+  .app-container {
+    padding-top: 0;
+    padding-bottom: 70px; /* Space for the bottom navbar */
+  }
+}
+
 
 html, body, #root {
   height: 100%;
@@ -70,7 +80,4 @@ button, input, textarea, select {
   }
 }
 
-.app-container {
-  animation: pageEnter 0.4s ease-out;
-}
 
