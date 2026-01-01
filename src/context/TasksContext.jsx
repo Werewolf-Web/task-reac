@@ -3,7 +3,10 @@ import React, { createContext, useState, useEffect } from 'react';
 export const TasksContext = createContext(null);
 
 export function TasksProvider({ children }) {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(() => {
+    const stored = localStorage.getItem('dailyTasks');
+    return stored ? JSON.parse(stored) : [];
+  });
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [showAllTasksPage, setShowAllTasksPage] = useState(false);
@@ -12,12 +15,6 @@ export function TasksProvider({ children }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-
-  // Load tasks from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem('dailyTasks');
-    if (stored) setTasks(JSON.parse(stored));
-  }, []);
 
   // Persist tasks
   useEffect(() => {

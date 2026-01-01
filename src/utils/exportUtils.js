@@ -9,10 +9,19 @@ export const formatDate = (dateString) => {
   return `${day}/${month}/${year}`;
 };
 
+const sortTasksAscending = (tasks) => {
+  return [...tasks].sort((a, b) => {
+    const timeA = a.startTime || a.time || '00:00';
+    const timeB = b.startTime || b.time || '00:00';
+    return new Date(`${a.date}T${timeA}`) - new Date(`${b.date}T${timeB}`);
+  });
+};
+
 export const exportTasksToCSV = (tasks) => {
+  const sortedTasks = sortTasksAscending(tasks);
   const csvContent = [
     ['Date', 'Start Time', 'Stop Time', 'Title', 'Task Detail'].join(','),
-    ...tasks.map(task => [
+    ...sortedTasks.map(task => [
       formatDate(task.date),
       task.startTime || task.time,
       task.stopTime || '',
@@ -31,7 +40,8 @@ export const exportTasksToCSV = (tasks) => {
 };
 
 export const exportTasksToExcel = (tasks) => {
-  const data = tasks.map(task => ({
+  const sortedTasks = sortTasksAscending(tasks);
+  const data = sortedTasks.map(task => ({
     Date: formatDate(task.date),
     'Start Time': task.startTime || task.time,
     'Stop Time': task.stopTime || '',
@@ -55,6 +65,7 @@ export const exportTasksToExcel = (tasks) => {
 };
 
 export const exportTasksToPDF = (tasks) => {
+  const sortedTasks = sortTasksAscending(tasks);
   const doc = new jsPDF();
   const pageHeight = doc.internal.pageSize.getHeight();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -79,7 +90,7 @@ export const exportTasksToPDF = (tasks) => {
   doc.line(margin, yPosition, pageWidth - margin, yPosition);
   yPosition += 5;
 
-  tasks.forEach((task, index) => {
+  sortedTasks.forEach((task, index) => {
     const taskDate = formatDate(task.date);
     const timeInfo = task.stopTime 
       ? `Start: ${task.startTime || task.time} | Stop: ${task.stopTime}`
