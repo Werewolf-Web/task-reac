@@ -10,6 +10,7 @@ import {
   Badge,
   Modal,
   Alert,
+  InputGroup,
 } from 'react-bootstrap';
 import '../styles/TaskManager.css';
 import AllTasksPage from './AllTasksPage';
@@ -18,9 +19,10 @@ import { formatDate } from '../utils/exportUtils';
 
 const TaskManager = ({ currentUser, onLogout }) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [time, setTime] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [stopTime, setStopTime] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
-  const [taskDescription, setTaskDescription] = useState('');
+  const [taskDetail, setTaskDetail] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -51,9 +53,10 @@ const TaskManager = ({ currentUser, onLogout }) => {
     if (editingTask) {
       setEditingId(editingTask.id);
       setDate(editingTask.date || new Date().toISOString().split('T')[0]);
-      setTime(editingTask.time || '');
+      setStartTime(editingTask.startTime || editingTask.time || '');
+      setStopTime(editingTask.stopTime || '');
       setTaskTitle(editingTask.title || '');
-      setTaskDescription(editingTask.description || '');
+      setTaskDetail(editingTask.taskDetail || editingTask.description || '');
     } else {
       setEditingId(null);
     }
@@ -64,31 +67,45 @@ const TaskManager = ({ currentUser, onLogout }) => {
     setTimeout(() => setSuccessMessage(''), 2000);
   };
 
+  const handleAutomaticTime = (setter) => {
+    const now = new Date();
+    const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    setter(timeString);
+  };
+
   const saveTask = () => {
-    if (!date || !time || !taskTitle.trim()) {
-      alert('Please fill in all fields');
+    if (!date || !startTime || !taskTitle.trim()) {
+      alert('Please fill in required fields (Date, Start Time, and Task Title)');
       return;
     }
 
+    const taskData = {
+      date,
+      startTime,
+      stopTime,
+      title: taskTitle,
+      taskDetail,
+    };
+
     if (editingId) {
-      updateTask(editingId, {
-        date,
-        time,
-        title: taskTitle,
-        description: taskDescription,
-      });
+      updateTask(editingId, taskData);
       showSuccessMessage('Task updated successfully!');
       setEditingId(null);
     } else {
-      addTask({ date, time, title: taskTitle, description: taskDescription });
+      addTask(taskData);
       showSuccessMessage('Task added successfully!');
     }
 
     // Reset form
+    resetForm();
+  };
+
+  const resetForm = () => {
     setDate(new Date().toISOString().split('T')[0]);
-    setTime('');
+    setStartTime('');
+    setStopTime('');
     setTaskTitle('');
-    setTaskDescription('');
+    setTaskDetail('');
   };
 
   const deleteTask = (id) => {
@@ -100,15 +117,10 @@ const TaskManager = ({ currentUser, onLogout }) => {
     openEditModal(task);
   };
 
-
-
   const closeModal = () => {
     setShowModal(false);
     setEditingId(null);
-    setDate(new Date().toISOString().split('T')[0]);
-    setTime('');
-    setTaskTitle('');
-    setTaskDescription('');
+    resetForm();
   };
 
   // Filter and search tasks
@@ -118,7 +130,8 @@ const TaskManager = ({ currentUser, onLogout }) => {
     const matchesSearch =
       !searchTerm ||
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description.toLowerCase().includes(searchTerm.toLowerCase());
+      (task.taskDetail && task.taskDetail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
     // Status filter logic
     let matchesStatus = true;
@@ -133,8 +146,10 @@ const TaskManager = ({ currentUser, onLogout }) => {
 
   // Sort tasks by date and time
   const sortedTasks = [...filteredTasks].sort((a, b) => {
-    const dateA = new Date(`${a.date}T${a.time}`);
-    const dateB = new Date(`${b.date}T${b.time}`);
+    const timeA = a.startTime || a.time || '00:00';
+    const timeB = b.startTime || b.time || '00:00';
+    const dateA = new Date(`${a.date}T${timeA}`);
+    const dateB = new Date(`${b.date}T${timeB}`);
     return dateB - dateA;
   });
 
@@ -292,15 +307,18 @@ const TaskManager = ({ currentUser, onLogout }) => {
                     <Col xs={12} md={8}>
                       <div>
                         <h5 className="mb-2">{task.title}</h5>
-                        {task.description && (
-                          <p className="mb-3 text-muted task-description">{task.description}</p>
+                        {(task.taskDetail || task.description) && (
+                          <p className="mb-3 text-muted task-description">
+                            {task.taskDetail || task.description}
+                          </p>
                         )}
                         <div className="task-meta">
                           <Badge bg="info" className="me-2">
                             📅 {formatDate(task.date)}
                           </Badge>
                           <Badge bg="warning" text="dark">
-                            🕒 {task.time}
+                            🕒 {task.startTime || task.time}
+                            {task.stopTime && ` - ${task.stopTime}`}
                           </Badge>
                         </div>
                       </div>
@@ -350,12 +368,37 @@ const TaskManager = ({ currentUser, onLogout }) => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Time</Form.Label>
-              <Form.Control
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-              />
+              <Form.Label className="fw-bold">Start Time *</Form.Label>
+              <InputGroup>
+                <Form.Control
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+                <Button 
+                  variant="outline-primary" 
+                  onClick={() => handleAutomaticTime(setStartTime)}
+                >
+                  Automatic
+                </Button>
+              </InputGroup>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Stop Task Time</Form.Label>
+              <InputGroup>
+                <Form.Control
+                  type="time"
+                  value={stopTime}
+                  onChange={(e) => setStopTime(e.target.value)}
+                />
+                <Button 
+                  variant="outline-primary" 
+                  onClick={() => handleAutomaticTime(setStopTime)}
+                >
+                  Automatic
+                </Button>
+              </InputGroup>
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -369,13 +412,13 @@ const TaskManager = ({ currentUser, onLogout }) => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Description</Form.Label>
+              <Form.Label className="fw-bold">Task Detail</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={4}
-                placeholder="Enter task description (optional)"
-                value={taskDescription}
-                onChange={(e) => setTaskDescription(e.target.value)}
+                placeholder="Enter task detail (optional)"
+                value={taskDetail}
+                onChange={(e) => setTaskDetail(e.target.value)}
               />
             </Form.Group>
           </Form>

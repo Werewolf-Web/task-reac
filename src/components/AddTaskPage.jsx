@@ -1,52 +1,69 @@
 import { useState, useContext, useEffect } from 'react';
-import { Container, Row, Col, Form, Button, Alert, Card } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Alert, Card, InputGroup } from 'react-bootstrap';
 import { TasksContext } from '../context/TasksContext';
 import '../styles/AddTaskPage.css';
 
 const AddTaskPage = () => {
   const { addTask, updateTask, editingTask, setEditingTask } = useContext(TasksContext);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [time, setTime] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [stopTime, setStopTime] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
-  const [taskDescription, setTaskDescription] = useState('');
+  const [taskDetail, setTaskDetail] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     if (editingTask) {
       setDate(editingTask.date);
-      setTime(editingTask.time);
+      setStartTime(editingTask.startTime || editingTask.time || '');
+      setStopTime(editingTask.stopTime || '');
       setTaskTitle(editingTask.title);
-      setTaskDescription(editingTask.description || '');
+      setTaskDetail(editingTask.taskDetail || editingTask.description || '');
     }
   }, [editingTask]);
 
+  const handleAutomaticTime = (setter) => {
+    const now = new Date();
+    const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    setter(timeString);
+  };
+
   const handleSubmit = () => {
-    if (!date || !time || !taskTitle.trim()) {
-      alert('Please fill in all required fields');
+    if (!date || !startTime || !taskTitle.trim()) {
+      alert('Please fill in all required fields (Date, Start Time, and Task Title)');
       return;
     }
 
+    const taskData = {
+      date,
+      startTime,
+      stopTime,
+      title: taskTitle,
+      taskDetail,
+    };
+
     if (editingTask) {
-      updateTask(editingTask.id, { date, time, title: taskTitle, description: taskDescription });
+      updateTask(editingTask.id, taskData);
       setSuccessMessage('Task updated successfully!');
       setEditingTask(null);
       setTimeout(() => {
         setSuccessMessage('');
-        setDate(new Date().toISOString().split('T')[0]);
-        setTime('');
-        setTaskTitle('');
-        setTaskDescription('');
+        resetForm();
       }, 2000);
     } else {
-      addTask({ date, time, title: taskTitle, description: taskDescription });
+      addTask(taskData);
       setSuccessMessage('Task added successfully!');
-      // Reset form for adding new tasks
-      setDate(new Date().toISOString().split('T')[0]);
-      setTime('');
-      setTaskTitle('');
-      setTaskDescription('');
+      resetForm();
       setTimeout(() => setSuccessMessage(''), 2000);
     }
+  };
+
+  const resetForm = () => {
+    setDate(new Date().toISOString().split('T')[0]);
+    setStartTime('');
+    setStopTime('');
+    setTaskTitle('');
+    setTaskDetail('');
   };
 
   return (
@@ -74,12 +91,37 @@ const AddTaskPage = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">Time *</Form.Label>
-                  <Form.Control
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                  />
+                  <Form.Label className="fw-bold">Start Time *</Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                    />
+                    <Button 
+                      variant="outline-primary" 
+                      onClick={() => handleAutomaticTime(setStartTime)}
+                    >
+                      Automatic
+                    </Button>
+                  </InputGroup>
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">Stop Task Time</Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type="time"
+                      value={stopTime}
+                      onChange={(e) => setStopTime(e.target.value)}
+                    />
+                    <Button 
+                      variant="outline-primary" 
+                      onClick={() => handleAutomaticTime(setStopTime)}
+                    >
+                      Automatic
+                    </Button>
+                  </InputGroup>
                 </Form.Group>
 
                 <Form.Group className="mb-3">
@@ -93,13 +135,13 @@ const AddTaskPage = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-4">
-                  <Form.Label className="fw-bold">Description</Form.Label>
+                  <Form.Label className="fw-bold">Task Detail</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={5}
-                    placeholder="Enter task description (optional)"
-                    value={taskDescription}
-                    onChange={(e) => setTaskDescription(e.target.value)}
+                    placeholder="Enter task detail (optional)"
+                    value={taskDetail}
+                    onChange={(e) => setTaskDetail(e.target.value)}
                   />
                 </Form.Group>
 
@@ -110,7 +152,7 @@ const AddTaskPage = () => {
                     onClick={handleSubmit}
                     className="flex-grow-1"
                   >
-                    {editingTask ? 'Update Task' : 'Add Task'}
+                    {editingTask ? 'Update Task' : 'Submit'}
                   </Button>
                   {editingTask && (
                     <Button
@@ -118,10 +160,7 @@ const AddTaskPage = () => {
                       size="lg"
                       onClick={() => {
                         setEditingTask(null);
-                        setDate(new Date().toISOString().split('T')[0]);
-                        setTime('');
-                        setTaskTitle('');
-                        setTaskDescription('');
+                        resetForm();
                       }}
                     >
                       Cancel

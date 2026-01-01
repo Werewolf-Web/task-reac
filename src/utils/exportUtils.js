@@ -11,12 +11,13 @@ export const formatDate = (dateString) => {
 
 export const exportTasksToCSV = (tasks) => {
   const csvContent = [
-    ['Date', 'Time', 'Title', 'Description'].join(','),
+    ['Date', 'Start Time', 'Stop Time', 'Title', 'Task Detail'].join(','),
     ...tasks.map(task => [
       formatDate(task.date),
-      task.time,
+      task.startTime || task.time,
+      task.stopTime || '',
       `"${(task.title || '').replace(/"/g, '""')}"`,
-      `"${(task.description || '').replace(/"/g, '""')}"`,
+      `"${(task.taskDetail || task.description || '').replace(/"/g, '""')}"`,
     ].join(',')),
   ].join('\n');
 
@@ -32,9 +33,10 @@ export const exportTasksToCSV = (tasks) => {
 export const exportTasksToExcel = (tasks) => {
   const data = tasks.map(task => ({
     Date: formatDate(task.date),
-    Time: task.time,
+    'Start Time': task.startTime || task.time,
+    'Stop Time': task.stopTime || '',
     Title: task.title,
-    Description: task.description || '',
+    'Task Detail': task.taskDetail || task.description || '',
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(data);
@@ -43,6 +45,7 @@ export const exportTasksToExcel = (tasks) => {
 
   worksheet['!cols'] = [
     { wch: 15 },
+    { wch: 12 },
     { wch: 12 },
     { wch: 25 },
     { wch: 40 },
@@ -78,13 +81,17 @@ export const exportTasksToPDF = (tasks) => {
 
   tasks.forEach((task, index) => {
     const taskDate = formatDate(task.date);
+    const timeInfo = task.stopTime 
+      ? `Start: ${task.startTime || task.time} | Stop: ${task.stopTime}`
+      : `Time: ${task.startTime || task.time}`;
+
     const taskContent = [
       `${index + 1}. ${task.title}`,
-      `Date: ${taskDate} | Time: ${task.time}`,
+      `Date: ${taskDate} | ${timeInfo}`,
     ];
 
-    if (task.description) {
-      taskContent.push(`Description: ${task.description}`);
+    if (task.taskDetail || task.description) {
+      taskContent.push(`Detail: ${task.taskDetail || task.description}`);
     }
 
     let lineHeight = 6;

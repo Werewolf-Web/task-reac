@@ -41,7 +41,8 @@ const AllTasksPage = () => {
     const matchesSearch =
       !searchTerm ||
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description.toLowerCase().includes(searchTerm.toLowerCase());
+      (task.taskDetail && task.taskDetail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
     // Status filter logic
     let matchesStatus = true;
@@ -56,11 +57,13 @@ const AllTasksPage = () => {
 
   // Sort tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
+    const timeA = a.startTime || a.time || '00:00';
+    const timeB = b.startTime || b.time || '00:00';
     switch (sortBy) {
       case 'date-asc':
-        return new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`);
+        return new Date(`${a.date}T${timeA}`) - new Date(`${b.date}T${timeB}`);
       case 'date-desc':
-        return new Date(`${b.date}T${b.time}`) - new Date(`${a.date}T${a.time}`);
+        return new Date(`${b.date}T${timeB}`) - new Date(`${a.date}T${timeA}`);
       case 'title':
         return a.title.localeCompare(b.title);
       default:
@@ -268,7 +271,10 @@ const AllTasksPage = () => {
                         </div>
                         <div className="meta-item">
                           <span className="meta-label">Time:</span>
-                          <span className="meta-value">{task.time}</span>
+                          <span className="meta-value">
+                            {task.startTime || task.time}
+                            {task.stopTime && ` - ${task.stopTime}`}
+                          </span>
                         </div>
                       </div>
 
@@ -277,8 +283,10 @@ const AllTasksPage = () => {
                         <Badge bg={statusColor}>{statusLabel}</Badge>
                       </div>
 
-                      {task.description && (
-                        <p className="card-text text-muted mb-3">{task.description}</p>
+                      {(task.taskDetail || task.description) && (
+                        <p className="card-text text-muted mb-3">
+                          {task.taskDetail || task.description}
+                        </p>
                       )}
 
                       <Button
@@ -311,8 +319,10 @@ const AllTasksPage = () => {
             <div>
               <div className="mb-4">
                 <h4 className="task-modal-title">{selectedTask.title}</h4>
-                {selectedTask.description && (
-                  <p className="text-muted task-modal-description">{selectedTask.description}</p>
+                {(selectedTask.taskDetail || selectedTask.description) && (
+                  <p className="text-muted task-modal-description">
+                    {selectedTask.taskDetail || selectedTask.description}
+                  </p>
                 )}
               </div>
 
@@ -322,9 +332,16 @@ const AllTasksPage = () => {
               </div>
 
               <div className="detail-row mb-3">
-                <strong>Time:</strong>
-                <span>{selectedTask.time}</span>
+                <strong>Start Time:</strong>
+                <span>{selectedTask.startTime || selectedTask.time}</span>
               </div>
+
+              {selectedTask.stopTime && (
+                <div className="detail-row mb-3">
+                  <strong>Stop Time:</strong>
+                  <span>{selectedTask.stopTime}</span>
+                </div>
+              )}
 
               <div className="detail-row mb-3">
                 <strong>Status:</strong>

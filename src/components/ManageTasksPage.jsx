@@ -42,8 +42,10 @@ const ManageTasksPage = ({ currentUser, onNavigate }) => {
 
   // Sort tasks by date and time
   const sortedTasks = [...filteredTasks].sort((a, b) => {
-    const dateA = new Date(`${a.date}T${a.time}`);
-    const dateB = new Date(`${b.date}T${b.time}`);
+    const timeA = a.startTime || a.time || '00:00';
+    const timeB = b.startTime || b.time || '00:00';
+    const dateA = new Date(`${a.date}T${timeA}`);
+    const dateB = new Date(`${b.date}T${timeB}`);
     return dateB - dateA;
   });
 
@@ -198,15 +200,18 @@ const ManageTasksPage = ({ currentUser, onNavigate }) => {
                     <Col xs={12} lg={8} className="task-content">
                       <div className="task-info">
                         <h5 className="task-title mb-2">{task.title}</h5>
-                        {task.description && (
-                          <p className="task-description mb-2 text-muted">{task.description}</p>
+                        {(task.taskDetail || task.description) && (
+                          <p className="task-description mb-2 text-muted">
+                            {task.taskDetail || task.description}
+                          </p>
                         )}
                         <div className="task-meta">
                           <Badge bg="info" className="me-2">
                             {formatDate(task.date)}
                           </Badge>
                           <Badge bg="warning" text="dark">
-                            {task.time}
+                            {task.startTime || task.time}
+                            {task.stopTime && ` - ${task.stopTime}`}
                           </Badge>
                         </div>
                       </div>
@@ -254,8 +259,10 @@ const ManageTasksPage = ({ currentUser, onNavigate }) => {
             <div>
               <div className="mb-4">
                 <h4 className="task-modal-title">{selectedTask.title}</h4>
-                {selectedTask.description && (
-                  <p className="text-muted task-modal-description">{selectedTask.description}</p>
+                {(selectedTask.taskDetail || selectedTask.description) && (
+                  <p className="text-muted task-modal-description">
+                    {selectedTask.taskDetail || selectedTask.description}
+                  </p>
                 )}
               </div>
 
@@ -265,9 +272,16 @@ const ManageTasksPage = ({ currentUser, onNavigate }) => {
               </div>
 
               <div className="detail-row mb-3">
-                <strong>Time:</strong>
-                <span>{selectedTask.time}</span>
+                <strong>Start Time:</strong>
+                <span>{selectedTask.startTime || selectedTask.time}</span>
               </div>
+
+              {selectedTask.stopTime && (
+                <div className="detail-row mb-3">
+                  <strong>Stop Time:</strong>
+                  <span>{selectedTask.stopTime}</span>
+                </div>
+              )}
             </div>
           )}
         </Modal.Body>
